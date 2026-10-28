@@ -1,0 +1,11 @@
+{
+  "name": "word-search",
+  "version": "1.0.0",
+  "description": "Word Search - a mobile-friendly word search puzzle with English and Turkish word lists.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "MIT"
+}

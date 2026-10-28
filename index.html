@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Word Search</title>
+  <meta name="description" content="A word search puzzle for phone and desktop: 20 categories of English and Turkish words, three difficulties, hints and best times.">
+  <meta name="theme-color" content="#0f172a">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Word Search">
+  <meta property="og:description" content="Find hidden words in English and Turkish: 20 categories, three difficulties, hints and best times. Free and open source.">
+  <meta property="og:url" content="https://celaldrg.github.io/word-search/">
+  <meta property="og:image" content="https://celaldrg.github.io/word-search/docs/screenshot.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f172a'/%3E%3Crect x='9' y='25' width='46' height='14' rx='7' fill='%23fde68a' fill-opacity='.3' stroke='%23fde68a' stroke-width='3' transform='rotate(-45 32 32)'/%3E%3Cg fill='%23e2e8f0'%3E%3Ccircle cx='18' cy='18' r='3.5'/%3E%3Ccircle cx='32' cy='18' r='3.5'/%3E%3Ccircle cx='46' cy='18' r='3.5'/%3E%3Ccircle cx='18' cy='32' r='3.5'/%3E%3Ccircle cx='32' cy='32' r='3.5'/%3E%3Ccircle cx='46' cy='32' r='3.5'/%3E%3Ccircle cx='18' cy='46' r='3.5'/%3E%3Ccircle cx='32' cy='46' r='3.5'/%3E%3Ccircle cx='46' cy='46' r='3.5'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="src/main.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="brand">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true">
+        <rect width="64" height="64" rx="14" fill="#1e293b"/>
+        <rect x="9" y="25" width="46" height="14" rx="7" fill="#fde68a" fill-opacity=".3" stroke="#fde68a" stroke-width="3" transform="rotate(-45 32 32)"/>
+        <g fill="#e2e8f0">
+          <circle cx="18" cy="18" r="3.5"/><circle cx="32" cy="18" r="3.5"/><circle cx="46" cy="18" r="3.5"/>
+          <circle cx="18" cy="32" r="3.5"/><circle cx="32" cy="32" r="3.5"/><circle cx="46" cy="32" r="3.5"/>
+          <circle cx="18" cy="46" r="3.5"/><circle cx="32" cy="46" r="3.5"/><circle cx="46" cy="46" r="3.5"/>
+        </g>
+      </svg>
+      <span data-i18n="app.title">Word Search</span>
+    </h1>
+    <div class="actions">
+      <button type="button" class="btn btn-accent" id="new-game" data-i18n="app.newGame">New game</button>
+      <button type="button" class="btn" id="restart" data-i18n="app.restart">Restart</button>
+      <button type="button" class="btn btn-lang" id="lang-toggle" data-i18n="app.langToggle"
+        data-i18n-label="app.langToggleLabel" data-i18n-title="app.langToggleLabel"
+        aria-label="TR – switch to Turkish" title="TR – switch to Turkish">TR</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="play">
+      <div class="statbar">
+        <div class="stat">
+          <span class="stat-label" data-i18n="stats.time">Time</span>
+          <span class="stat-value" id="clock">0:00</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label" data-i18n="stats.found">Found</span>
+          <span class="stat-value" id="found-count">0/0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label" data-i18n="stats.best">Best</span>
+          <span class="stat-value" id="best-time">—</span>
+        </div>
+        <button type="button" class="btn hint-btn" id="hint">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18h6M10 21h4"/>
+            <path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2v.2h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/>
+          </svg>
+          <span class="hint-label" data-i18n="game.hint">Hint</span>
+        </button>
+      </div>
+      <div class="board">
+        <canvas id="board" tabindex="0" role="application" data-i18n-label="board.label"
+          aria-label="Letter grid. Drag across a word, or move with the arrow keys and press Enter on its first and last letter. Escape cancels."></canvas>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="card words-card" aria-labelledby="category-title">
+        <h2 class="card-title" id="category-title">Animals</h2>
+        <ul class="words" id="word-list"></ul>
+        <p class="status" id="status" aria-live="polite"></p>
+      </section>
+      <section class="card" aria-labelledby="settings-title">
+        <h2 class="card-title" id="settings-title" data-i18n="settings.title">Puzzle settings</h2>
+        <label class="field">
+          <span class="field-label" data-i18n="settings.category">Category</span>
+          <select class="select" id="category-select"></select>
+        </label>
+        <label class="field">
+          <span class="field-label" data-i18n="settings.wordLang">Word language</span>
+          <select class="select" id="word-lang-select"></select>
+        </label>
+        <label class="field">
+          <span class="field-label" data-i18n="settings.difficulty">Difficulty</span>
+          <select class="select" id="difficulty-select"></select>
+        </label>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    MIT · <a href="https://github.com/celaldrg/word-search" data-i18n="footer.source">Source on GitHub</a>
+  </footer>
+
+  <dialog class="dialog" id="win-dialog" aria-labelledby="win-title">
+    <h2 class="dialog-title" id="win-title" data-i18n="win.title">Well done!</h2>
+    <p class="dialog-text" data-i18n="win.text">You found every word.</p>
+    <dl class="win-stats">
+      <div>
+        <dt data-i18n="stats.time">Time</dt>
+        <dd id="win-time">0:00</dd>
+      </div>
+      <div id="win-best-row">
+        <dt data-i18n="stats.best">Best</dt>
+        <dd id="win-best">—</dd>
+      </div>
+    </dl>
+    <p class="dialog-hints" id="win-hints"></p>
+    <p class="badge" id="win-record" data-i18n="win.newBest" hidden>New best time!</p>
+    <div class="dialog-actions">
+      <button type="button" class="btn btn-accent" id="win-new-game" data-i18n="app.newGame">New game</button>
+      <button type="button" class="btn" id="win-close" data-i18n="win.close">Close</button>
+    </div>
+  </dialog>
+</body>
+</html>

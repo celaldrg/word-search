@@ -1,0 +1,569 @@
+/* Word Search - dark theme, mobile first. Board colors in src/palette.js match these tokens. */
+:root {
+  color-scheme: dark;
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --surface-raised: #283548;
+  --line: #334155;
+  --line-strong: #475569;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --accent: #fde68a;
+  --accent-strong: #fcd34d;
+  --accent-ink: #0f172a;
+  --radius: 12px;
+  --shadow: 0 1px 2px rgb(2 6 23 / 0.4), 0 10px 30px rgb(2 6 23 / 0.35);
+  --speed: 200ms;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.5 var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* Header */
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 12px 16px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 auto 0 0;
+  font-size: 1.2rem;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.brand-mark {
+  flex: none;
+  width: 32px;
+  height: 32px;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* Buttons and selects */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--speed) ease, border-color var(--speed) ease,
+    color var(--speed) ease, transform var(--speed) ease, opacity var(--speed) ease;
+}
+
+.btn:hover {
+  border-color: var(--line-strong);
+  background: var(--surface-raised);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+  transform: none;
+}
+
+.btn-accent {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.btn-accent:hover {
+  border-color: var(--accent-strong);
+  background: var(--accent-strong);
+}
+
+.btn-lang {
+  padding: 0 10px;
+  letter-spacing: 0.05em;
+}
+
+.btn .icon {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--accent);
+}
+
+.btn:focus-visible,
+.select:focus-visible,
+.footer a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.select {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 40px 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-raised) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%2394a3b8' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 14px center / 12px 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  touch-action: manipulation;
+  transition: border-color var(--speed) ease;
+}
+
+.select:hover {
+  border-color: var(--line-strong);
+}
+
+.select option {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* Layout: one column on phones (board, then the words right under it), two from 860px */
+.layout {
+  --board-size: min(100%, 640px, max(300px, calc(100vh - 220px)));
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 12px;
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 4px 16px 16px;
+}
+
+@supports (height: 100dvh) {
+  .layout {
+    --board-size: min(100%, 640px, max(300px, calc(100dvh - 220px)));
+  }
+}
+
+.play,
+.side {
+  justify-self: center;
+  width: var(--board-size);
+}
+
+@media (min-width: 860px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    align-items: start;
+    gap: 24px;
+  }
+
+  .side {
+    justify-self: stretch;
+    width: auto;
+  }
+}
+
+/* As wide as the board; the stat bar adapts to that width */
+.play {
+  container-type: inline-size;
+  display: grid;
+  gap: 12px;
+}
+
+/* Timer, counters and hint */
+.statbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat {
+  display: grid;
+  gap: 2px;
+  min-width: 64px;
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  line-height: 1.15;
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.hint-btn {
+  margin-left: auto;
+}
+
+/* Phone-sized boards: tighter counters; below about 340px of screen an icon-only hint button */
+@container (max-width: 400px) {
+  .statbar {
+    gap: 6px;
+  }
+
+  .stat {
+    min-width: 0;
+    padding: 6px 9px;
+  }
+}
+
+@container (max-width: 310px) {
+  /* Hidden from view, still the button's accessible name */
+  .hint-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* Board: the only element that takes over touch gestures */
+.board {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.board canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.board canvas:focus {
+  outline: none;
+}
+
+.board canvas:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Side panel: word list with the status line, and settings */
+.side {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  min-width: 0;
+}
+
+.card {
+  padding: 16px;
+  border: 1px solid rgb(148 163 184 / 0.12);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.card-title {
+  margin: 0 0 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.word {
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--surface-raised);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.4;
+  transition: background-color var(--speed) ease, color var(--speed) ease;
+}
+
+.word.is-found {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--muted);
+  text-decoration-line: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--word-color);
+}
+
+.word.is-found::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--word-color);
+  vertical-align: 1px;
+}
+
+/* Two lines reserved, so the settings below do not jump when the message changes */
+.status {
+  min-height: 3em;
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+/* One column: tighter spacing and a compact word card, so the whole list fits under the board on a phone */
+@media (max-width: 859px) {
+  .layout,
+  .play {
+    gap: 10px;
+  }
+
+  .side {
+    gap: 12px;
+  }
+
+  .words-card {
+    padding: 10px 14px 12px;
+  }
+
+  .words-card .card-title {
+    margin-bottom: 6px;
+    font-size: 1rem;
+  }
+
+  .words {
+    gap: 6px;
+  }
+
+  .word {
+    padding: 3px 9px;
+    font-size: 0.82rem;
+  }
+
+  .status {
+    margin-top: 6px;
+  }
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field + .field {
+  margin-top: 12px;
+}
+
+.field-label {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Footer */
+.footer {
+  padding: 4px 16px 20px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+.footer a {
+  display: inline-block;
+  padding: 10px 4px;
+  border-radius: 6px;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* Win dialog */
+.dialog {
+  width: min(360px, calc(100vw - 32px));
+  padding: 28px 24px 24px;
+  border: 1px solid rgb(148 163 184 / 0.15);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 24px 64px rgb(2 6 23 / 0.6);
+  text-align: center;
+}
+
+.dialog[open] {
+  animation: pop-in 220ms ease-out;
+}
+
+.dialog::backdrop {
+  background: rgb(2 6 23 / 0.7);
+}
+
+.dialog-title {
+  margin: 0 0 4px;
+  font-size: 1.5rem;
+  line-height: 1.25;
+}
+
+.dialog-text {
+  margin: 0;
+  color: var(--muted);
+}
+
+.win-stats {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px 0 12px;
+}
+
+.win-stats div {
+  min-width: 110px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+}
+
+.win-stats dt {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.win-stats dd {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.dialog-hints {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.badge {
+  display: inline-block;
+  margin: 0 0 16px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+}
+
+@media (max-width: 400px) {
+  .brand {
+    font-size: 1.1rem;
+  }
+
+  .brand-mark {
+    display: none;
+  }
+
+  .btn {
+    padding: 0 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
