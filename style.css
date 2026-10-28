@@ -412,8 +412,33 @@ select {
     font-size: 0.82rem;
   }
 
+  /* No reserved second line on phones: keeps the status inside the fold on the 15x15 grid */
   .status {
+    min-height: 0;
     margin-top: 6px;
+  }
+}
+
+/* Short landscape screens (phones turned sideways): board left, words and settings right */
+@media (orientation: landscape) and (max-height: 520px) and (min-width: 560px) and (max-width: 859px) {
+  .layout {
+    --board-size: max(180px, min(calc(100vw - 280px), calc(100vh - 150px)));
+    grid-template-columns: var(--board-size) minmax(0, 1fr);
+    align-items: start;
+    gap: 16px;
+  }
+
+  .side {
+    justify-self: stretch;
+    width: auto;
+  }
+}
+
+@supports (height: 100dvh) {
+  @media (orientation: landscape) and (max-height: 520px) and (min-width: 560px) and (max-width: 859px) {
+    .layout {
+      --board-size: max(180px, min(calc(100vw - 280px), calc(100dvh - 150px)));
+    }
   }
 }
 
